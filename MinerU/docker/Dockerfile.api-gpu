@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1
+# Pip uses BuildKit cache (--mount=target=/root/.cache/pip) so wheels are not re-fetched every build.
+# Hugging Face model weights must NOT use a cache-only mount: those files must land in the image layer
+# or mineru.json points at paths that exist only on the build host and YOLO/torch.load fails at runtime.
+#
+# CUDA PyTorch first, then mineru (avoids pulling default torch then replacing it).
+FROM python:3.12-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    fonts-noto-cjk \
+    fontconfig \
+    libgl1 \
+    libglib2.0-0 \
+    && fc-cache -fv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Pip cache survives layer invalidation (e.g. Dockerfile edits above this line).
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 && \
+    pip install "mineru[api,pipeline,vlm]>=2.6.3,<3"
+
+# Fix HF hub snapshot paths in mineru.json vs transformers.from_pretrained (HFValidationError on repo id)
+COPY mineru/backend/vlm/vlm_analyze.py /usr/local/lib/python3.12/site-packages/mineru/backend/vlm/vlm_analyze.py
+
+ENV HF_HOME=/root/.cache/huggingface
+RUN --mount=type=cache,target=/root/.cache/pip \
+    MINERU_MODEL_SOURCE=huggingface mineru-models-download -s huggingface -m all
+
+ENV MINERU_MODEL_SOURCE=local
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=15s --retries=8 --start-period=600s \
+    CMD curl -fsS http://127.0.0.1:8000/openapi.json >/dev/null || exit 1
+
+CMD ["mineru-api", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,254 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "decision",
+      "text": "Metal: ~Std Steel ~Alu Steel",
+      "bbox": [
+        673,
+        1303,
+        249,
+        284
+      ],
+      "search_area": [
+        653,
+        1283,
+        942,
+        1607
+      ]
+    },
+    {
+      "id": 1,
+      "type": "process",
+      "text": "BB",
+      "bbox": [
+        3043,
+        1217,
+        132,
+        102
+      ],
+      "search_area": [
+        3023,
+        1197,
+        3195,
+        1339
+      ]
+    },
+    {
+      "id": 2,
+      "type": "process",
+      "text": "No after-treatment",
+      "bbox": [
+        2561,
+        1215,
+        407,
+        101
+      ],
+      "search_area": [
+        2541,
+        1195,
+        2988,
+        1336
+      ]
+    },
+    {
+      "id": 3,
+      "type": "process",
+      "text": "No",
+      "bbox": [
+        1991,
+        1201,
+        139,
+        96
+      ],
+      "search_area": [
+        1971,
+        1181,
+        2150,
+        1317
+      ]
+    },
+    {
+      "id": 4,
+      "type": "process",
+      "text": "Alu Steel 00119054 95",
+      "bbox": [
+        2186,
+        1169,
+        310,
+        182
+      ],
+      "search_area": [
+        2166,
+        1149,
+        2516,
+        1371
+      ]
+    },
+    {
+      "id": 5,
+      "type": "process",
+      "text": "Use Welds?",
+      "bbox": [
+        1394,
+        960,
+        311,
+        102
+      ],
+      "search_area": [
+        1374,
+        940,
+        1725,
+        1082
+      ]
+    },
+    {
+      "id": 6,
+      "type": "decision",
+      "text": "Air Inlet",
+      "bbox": [
+        260,
+        953,
+        200,
+        185
+      ],
+      "search_area": [
+        240,
+        933,
+        480,
+        1158
+      ]
+    },
+    {
+      "id": 7,
+      "type": "decision",
+      "text": "AA",
+      "bbox": [
+        2934,
+        753,
+        127,
+        102
+      ],
+      "search_area": [
+        2914,
+        733,
+        3081,
+        875
+      ]
+    },
+    {
+      "id": 8,
+      "type": "process",
+      "text": "Yes",
+      "bbox": [
+        1983,
+        753,
+        140,
+        95
+      ],
+      "search_area": [
+        1963,
+        733,
+        2143,
+        868
+      ]
+    },
+    {
+      "id": 9,
+      "type": "process",
+      "text": "STD Steel 00119039 55",
+      "bbox": [
+        2183,
+        713,
+        311,
+        182
+      ],
+      "search_area": [
+        2163,
+        693,
+        2514,
+        915
+      ]
+    },
+    {
+      "id": 10,
+      "type": "process",
+      "text": "Nickelled (25 um) or KTL",
+      "bbox": [
+        2564,
+        703,
+        295,
+        195
+      ],
+      "search_area": [
+        2544,
+        683,
+        2879,
+        918
+      ]
+    },
+    {
+      "id": 11,
+      "type": "process",
+      "text": "Plastic",
+      "bbox": [
+        673,
+        577,
+        233,
+        106
+      ],
+      "search_area": [
+        653,
+        557,
+        926,
+        703
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 5
+    },
+    {
+      "from": 2,
+      "to": 1
+    },
+    {
+      "from": 3,
+      "to": 4
+    },
+    {
+      "from": 4,
+      "to": 2
+    },
+    {
+      "from": 5,
+      "to": 8
+    },
+    {
+      "from": 5,
+      "to": 3
+    },
+    {
+      "from": 6,
+      "to": 11
+    },
+    {
+      "from": 6,
+      "to": 0
+    },
+    {
+      "from": 8,
+      "to": 9
+    },
+    {
+      "from": 9,
+      "to": 10
+    },
+    {
+      "from": 10,
+      "to": 7
+    }
+  ]
+}

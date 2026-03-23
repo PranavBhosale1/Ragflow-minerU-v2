@@ -1,0 +1,16 @@
+# Optional override: CUDA MinerU + GPU passthrough (faster vlm-transformers than CPU).
+# Prerequisites: NVIDIA driver, Docker Desktop GPU / WSL2 GPU, or Linux + nvidia-container-toolkit.
+#
+#   docker compose --env-file ragflow/docker/.env -f docker-compose.yml -f docker-compose.mineru-gpu.yml up -d --build
+# Or: .\start-ragflow-mineru.ps1 -MineruGpu
+#
+services:
+  mineru-api:
+    build:
+      context: ./MinerU
+      dockerfile: docker/Dockerfile.api-gpu
+    image: mineru-api-gpu:local
+    environment:
+      MINERU_MODEL_SOURCE: local
+      NVIDIA_VISIBLE_DEVICES: all
+    gpus: all

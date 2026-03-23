@@ -1,0 +1,71 @@
+# RAGFlow + MinerU (single stack for UI testing)
+#
+# From this folder (Ragflow-minerU-v2), you MUST pass RAGFlow's env file (profiles + secrets):
+#   docker compose --env-file ragflow/docker/.env up -d --build
+# Windows:
+#   .\start-ragflow-mineru.ps1
+#
+# Web UI: http://localhost:${SVR_WEB_HTTP_PORT:-80}
+# MinerU API (host): http://localhost:${MINERU_PORT:-8000}
+#
+# Requires ragflow/docker/.env (copy from ragflow/docker if missing). Ensure COMPOSE_PROFILES
+# includes your doc engine and cpu or gpu (e.g. elasticsearch,cpu).
+#
+# MinerU GPU (optional): merge docker-compose.mineru-gpu.yml — see that file. Default below is CPU PyTorch.
+
+name: ragflow-mineru
+
+include:
+  - path: ragflow/docker/docker-compose.yml
+
+services:
+  # Rebuild after Dockerfile changes: docker compose --env-file ragflow/docker/.env build --no-cache mineru-api
+  # First build downloads pipeline+VLM weights (large). MINERU_MODEL_SOURCE=local uses /root/mineru.json in the image.
+  mineru-api:
+    build:
+      context: ./MinerU
+      dockerfile: docker/Dockerfile.api-cpu
+    image: mineru-api-cpu:local
+    container_name: mineru-api
+    restart: unless-stopped
+    ports:
+      - "${MINERU_PORT:-8000}:8000"
+    environment:
+      MINERU_MODEL_SOURCE: local
+    networks:
+      - ragflow
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/openapi.json >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 8
+      start_period: 300s
+
+  # Merge must repeat mysql dependency; otherwise the included depends_on is replaced.
+  ragflow-cpu:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mineru-api:
+        condition: service_started
+    environment:
+      # Same Docker network as mineru-api; overrides host.docker.internal in saved UI config
+      MINERU_APISERVER: http://mineru-api:8000
+    volumes:
+      # Flowchart-on-upload (see flowchart/ORIGINAL_STACK_SETUP.md). Do not mount all of ragflow/api.
+      - ./flowchart:/flowchart-tools:ro
+      - ./ragflow/api/utils/flowchart_on_upload.py:/ragflow/api/utils/flowchart_on_upload.py:ro
+      - ./ragflow/api/db/services/file_service.py:/ragflow/api/db/services/file_service.py:ro
+
+  ragflow-gpu:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mineru-api:
+        condition: service_started
+    environment:
+      MINERU_APISERVER: http://mineru-api:8000
+    volumes:
+      - ./flowchart:/flowchart-tools:ro
+      - ./ragflow/api/utils/flowchart_on_upload.py:/ragflow/api/utils/flowchart_on_upload.py:ro
+      - ./ragflow/api/db/services/file_service.py:/ragflow/api/db/services/file_service.py:ro

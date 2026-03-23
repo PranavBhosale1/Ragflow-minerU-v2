@@ -1,0 +1,33 @@
+# MinerU FastAPI for RAGFlow: pipeline + VLM (transformers) backends, CPU PyTorch.
+# First build downloads pipeline + VLM weights (~several GB) and writes /root/mineru.json.
+# VLM on CPU is slow; for GPU use a CUDA base image + torch CUDA wheels and deploy with --gpus.
+FROM python:3.12-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    fonts-noto-cjk \
+    fontconfig \
+    libgl1 \
+    libglib2.0-0 \
+    && fc-cache -fv \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip && \
+    pip install "mineru[api,pipeline,vlm]>=2.6.3,<3"
+
+COPY mineru/backend/vlm/vlm_analyze.py /usr/local/lib/python3.12/site-packages/mineru/backend/vlm/vlm_analyze.py
+
+# Bake pipeline + VLM models and merge paths into ~/mineru.json (required when MINERU_MODEL_SOURCE=local).
+RUN MINERU_MODEL_SOURCE=huggingface mineru-models-download -s huggingface -m all
+
+ENV MINERU_MODEL_SOURCE=local
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=15s --retries=8 --start-period=600s \
+    CMD curl -fsS http://127.0.0.1:8000/openapi.json >/dev/null || exit 1
+
+CMD ["mineru-api", "--host", "0.0.0.0", "--port", "8000"]
