@@ -1,0 +1,43 @@
+# Benchmark questions for flowchart retrieval (fill document_id after adding VIT PDFs)
+# Run the same list before (MinerU-only) and after (MinerU + *_rag.md) ingestion; note which chunk IDs hit.
+
+version: 1
+document_ids: []  # e.g. ["spec_section_3.pdf"] once PDFs are in this folder
+
+queries:
+  - id: Q1
+    question: "What is the first decision or branch after the start of the flowchart?"
+    notes: "Requires understanding graph entry; weak if only image in KB."
+
+  - id: Q2
+    question: "Which process or step connects to the node labeled with the main material or metal type?"
+    notes: "Replace with labels from your real diagram OCR text."
+
+  - id: Q3
+    question: "List all outgoing paths from the weld-related decision (if present)."
+    notes: "Tests multi-hop edges; RAG layer lists edges explicitly."
+
+  - id: Q4
+    question: "What happens after 'No' at the first decision diamond?"
+    notes: "Decision routing."
+
+  - id: Q5
+    question: "Is there a path from coolant or oil handling to a hose assembly step?"
+    notes: "Cross-domain link in industrial P&ID-style charts."
+
+  - id: Q6
+    question: "What is the terminal or end state of the flow (last nodes with no outgoing edges)?"
+    notes: "Graph summary section helps."
+
+  - id: Q7
+    question: "Which standard steel or paint specification numbers appear in the flowchart?"
+    notes: "OCR text in nodes; compare MinerU body vs RAG layer."
+
+  - id: Q8
+    question: "Summarize the flow from air inlet to cooler in three sentences."
+    notes: "LLM quality; retrieval should surface relevant edge sentences."
+
+scoring:
+  description: >
+    For each query, record pass/fail: retrieved chunk contains facts needed to answer.
+    Optional: note embedding rank of the *_rag.md chunk vs MinerU-only chunks.

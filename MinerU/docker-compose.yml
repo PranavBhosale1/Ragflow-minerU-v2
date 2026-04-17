@@ -1,0 +1,19 @@
+# Standalone MinerU API (CPU pipeline). Build is slow on first run (model download).
+# Usage (from MinerU repo root):
+#   docker compose up -d --build
+# API: http://localhost:8000  (openapi: /openapi.json, parse: POST /file_parse)
+#
+# For GPU / vLLM / full "mineru:latest" image, use docker/compose.yaml with profile "api".
+
+services:
+  mineru-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api-cpu
+    image: mineru-api-cpu:local
+    container_name: mineru-api
+    restart: unless-stopped
+    ports:
+      - "${MINERU_PORT:-8000}:8000"
+    environment:
+      MINERU_MODEL_SOURCE: local

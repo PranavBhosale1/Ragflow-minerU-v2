@@ -1,0 +1,31 @@
+# Optional overlay: flowchart-on-upload hook + extractor (see vit-test/TESTING.md).
+#
+# For the ragflow-mineru stack (repo root docker-compose.yml), flowchart binds are already declared
+# there — you do not need this file. Use: docker compose --env-file ragflow/docker/.env up -d
+#
+# Standalone RAGFlow from ragflow/docker only:
+#   docker compose -f docker-compose.yml -f docker-compose.flowchart.yml --profile cpu up -d
+#
+# Mounts (paths are relative to this file’s directory, ragflow/docker):
+#   - ../../flowchart -> /flowchart-tools
+#   - two files under ../api/... only (do NOT mount all of ../api over /ragflow/api)
+#
+# Set in .env:
+#   FLOWCHART_ON_UPLOAD=true
+#   FLOWCHART_ROOT=/flowchart-tools
+#   FLOWCHART_POPPLER_PATH=/usr/bin
+#
+# One-time inside container: apt-get install poppler-utils && pip install -r /flowchart-tools/requirements.txt
+
+services:
+  ragflow-cpu:
+    volumes:
+      - ../../flowchart:/flowchart-tools:ro
+      - ../api/utils/flowchart_on_upload.py:/ragflow/api/utils/flowchart_on_upload.py:ro
+      - ../api/db/services/file_service.py:/ragflow/api/db/services/file_service.py:ro
+
+  ragflow-gpu:
+    volumes:
+      - ../../flowchart:/flowchart-tools:ro
+      - ../api/utils/flowchart_on_upload.py:/ragflow/api/utils/flowchart_on_upload.py:ro
+      - ../api/db/services/file_service.py:/ragflow/api/db/services/file_service.py:ro

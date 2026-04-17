@@ -1,0 +1,26 @@
+# Local / personal (not part of the stack)
+Doc to be sent to VIT/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python (root-level helpers; subprojects have their own rules)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Logs & temp
+*.log
+/tmp/
+/temp/
+
+# Local test runner state (machine-specific paths)
+vit-test/.flowchart_ragflow_state.json
+
+# Windows folder metadata
+desktop.ini
